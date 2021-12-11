@@ -1,0 +1,21 @@
+2021-12-08T22:06:42.617726800255-22:06:42 **** Incremental Build of configuration Debug for project final_app ****
+000-make all 
+000-'Building file: ../src/main_sampler_test.cpp'
+000-'Invoking: MicroBlaze g++ compiler'
+000-mb-g++ -Wall -O0 -g3 -c -fmessage-length=0 -MT"src/main_sampler_test.o" -IC:/Users/andrew_clinkenbeard1/Box/SOC/project_workspace/final_project/export/final_project/sw/final_project/standalone_domain/bspinclude/include -mno-xl-reorder -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -ffunction-sections -fdata-sections -MMD -MP -MF"src/main_sampler_test.d" -MT"src/main_sampler_test.o" -o "src/main_sampler_test.o" "../src/main_sampler_test.cpp"
+000-'Finished building: ../src/main_sampler_test.cpp'
+000-' '
+000-'Building target: final_app.elf'
+000-'Invoking: MicroBlaze g++ linker'
+000-mb-g++ -Wl,-T -Wl,../src/lscript.ld -LC:/Users/andrew_clinkenbeard1/Box/SOC/project_workspace/final_project/export/final_project/sw/final_project/standalone_domain/bsplib/lib -mlittle-endian -mcpu=v11.0 -mxl-soft-mul -Wl,--no-relax -Wl,--gc-sections -o "final_app.elf"  ./src/adsr_core.o ./src/chu_init.o ./src/ddfs_core.o ./src/gpio_cores.o ./src/i2c_core.o ./src/main_sampler_test.o ./src/ps2_core.o ./src/spi_core.o ./src/sseg_core.o ./src/timer_core.o ./src/uart_core.o ./src/vga_core.o ./src/xadc_core.o   -Wl,--start-group,-lxil,-lgcc,-lc,-lstdc++,--end-group
+000-'Finished building target: final_app.elf'
+000-' '
+000-'Invoking: MicroBlaze Print Size'
+000-mb-size final_app.elf  |tee "final_app.elf.size"
+000-   text	   data	    bss	    dec	    hex	filename
+000-  14581	    284	   3151	  18016	   4660	final_app.elf
+000-'Finished building: final_app.elf.size'
+000-' '
+00255-
+22:06:45 Build Finished (took 2s.395ms)
+

@@ -1,0 +1,255 @@
+/*****************************************************************//**
+ * @file main_sampler_test.cpp
+ *
+ * @brief Basic test of nexys4 ddr mmio cores
+ *
+ * @author p chu
+ * @version v1.0: initial release
+ *********************************************************************/
+
+// #define _DEBUG
+#include "chu_init.h"
+#include "gpio_cores.h"
+#include "sseg_core.h"
+#include "ps2_core.h"
+
+/**
+ * blink once per second for 5 times.
+ * provide a sanity check for timer (based on SYS_CLK_FREQ)
+ * @param led_p pointer to led instance
+ */
+void timer_check(GpoCore *led_p) {
+   int i;
+
+   for (i = 0; i < 5; i++) {
+      led_p->write(0xffff);
+      sleep_ms(500);
+      led_p->write(0x0000);
+      sleep_ms(500);
+      debug("timer check - (loop #)/now: ", i, now_ms());
+   }
+}
+
+/**
+ * check individual led
+ * @param led_p pointer to led instance
+ * @param n number of led
+ */
+void led_check(GpoCore *led_p, int n) {
+   int i;
+
+   for (i = 0; i < n; i++) {
+      led_p->write(1, i);
+      sleep_ms(100);
+      led_p->write(0, i);
+      sleep_ms(100);
+   }
+}
+
+/**
+ * leds flash according to switch positions.
+ * @param led_p pointer to led instance
+ * @param sw_p pointer to switch instance
+ */
+void sw_check(GpoCore *led_p, GpiCore *sw_p) {
+   int i, s;
+
+   s = sw_p->read();
+   for (i = 0; i < 30; i++) {
+      led_p->write(s);
+      sleep_ms(50);
+      led_p->write(0);
+      sleep_ms(50);
+   }
+}
+
+
+
+
+
+
+/**
+ * Test pattern in 7-segment LEDs
+ * @param sseg_p pointer to 7-seg LED instance
+ */
+
+void sseg_check(SsegCore *sseg_p) {
+   int i, n;
+   uint8_t dp;
+
+   //turn off led
+   for (i = 0; i < 8; i++) {
+      sseg_p->write_1ptn(0xff, i);
+   }
+   //turn off all decimal points
+   sseg_p->set_dp(0x00);
+
+   // display 0x0 to 0xf in 4 epochs
+   // upper 4  digits mirror the lower 4
+   for (n = 0; n < 4; n++) {
+      for (i = 0; i < 4; i++) {
+         sseg_p->write_1ptn(sseg_p->h2s(i + n * 4), 3 - i);
+         sseg_p->write_1ptn(sseg_p->h2s(i + n * 4), 7 - i);
+         sleep_ms(300);
+      } // for i
+   }  // for n
+      // shift a decimal point 4 times
+   for (i = 0; i < 4; i++) {
+      bit_set(dp, 3 - i);
+      sseg_p->set_dp(1 << (3 - i));
+      sleep_ms(300);
+   }
+   //turn off led
+   for (i = 0; i < 8; i++) {
+      sseg_p->write_1ptn(0xff, i);
+   }
+   //turn off all decimal points
+   sseg_p->set_dp(0x00);
+
+}
+
+
+void ps2_check(Ps2Core *ps2_p) {
+   int id;
+   int lbtn, rbtn, xmov, ymov;
+   char ch;
+   unsigned long last;
+
+   uart.disp("\n\rPS2 device (1-keyboard / 2-mouse): ");
+   id = ps2_p->init();
+   uart.disp(id);
+   uart.disp("\n\r");
+   last = now_ms();
+   do {
+      if (id == 2) {  // mouse
+         if (ps2_p->get_mouse_activity(&lbtn, &rbtn, &xmov, &ymov)) {
+            uart.disp("[");
+            uart.disp(lbtn);
+            uart.disp(", ");
+            uart.disp(rbtn);
+            uart.disp(", ");
+            uart.disp(xmov);
+            uart.disp(", ");
+            uart.disp(ymov);
+            uart.disp("] \r\n");
+            last = now_ms();
+
+         }   // end get_mouse_activitiy()
+      } else {
+         if (ps2_p->get_kb_ch(&ch)) {
+            uart.disp(ch);
+            uart.disp(" ");
+            last = now_ms();
+         } // end get_kb_ch()
+      }  // end id==2
+   } while (now_ms() - last < 5000);
+   uart.disp("\n\rExit PS2 test \n\r");
+
+}
+
+
+char get_hex(Ps2Core *ps2_p)
+{
+	char ch;
+	bool flag = false;
+	do{
+
+
+	if (ps2_p->get_kb_ch(&ch))
+	{
+		uart.disp(ch);
+	    uart.disp(" ");
+	    flag = true;
+	} // end get_kb_ch()
+	} while(!flag);
+
+	return ch;
+}
+
+int math(char data[5])
+{
+	uart.disp(data[0], data[1]);
+	return 12345;
+}
+
+void display(int number, SsegCore *sseg_p)
+{
+	int sseg[8];
+	for (int x = 0; x < 9; x++)
+	{
+		sseg[x] = 0;
+	}
+	for(int i=0; i<5; i++)
+	{
+		sseg[i] = number % 10;
+		number = number / 10;
+		uart.disp(sseg[i]);
+		uart.disp("\n\r");
+	}
+	for (int i = 0; i <9; i++)
+	{
+		sseg_p->write_1ptn(sseg_p->h2s(sseg[i]), i);
+	}
+	sseg_p->set_dp(0x00);
+}
+
+
+/**
+ * core test
+ * @param led_p pointer to led instance
+ * @param sw_p pointer to switch instance
+ */
+void show_test_id(int n, GpoCore *led_p) {
+   int i, ptn;
+
+   ptn = n; //1 << n;
+   for (i = 0; i < 20; i++) {
+      led_p->write(ptn);
+      sleep_ms(30);
+      led_p->write(0);
+      sleep_ms(30);
+   }
+}
+
+GpoCore led(get_slot_addr(BRIDGE_BASE, S2_LED));
+GpiCore sw(get_slot_addr(BRIDGE_BASE, S3_SW));
+DebounceCore btn(get_slot_addr(BRIDGE_BASE, S7_BTN));
+SsegCore sseg(get_slot_addr(BRIDGE_BASE, S8_SSEG));
+Ps2Core ps2(get_slot_addr(BRIDGE_BASE, S11_PS2));
+
+
+int main() {
+   //uint8_t id, ;
+	char operations [5];
+	int number;
+	timer_check(&led);
+	uart.disp("Enter 2 digit HEX number:\r\n");
+	operations[0] = get_hex(&ps2);
+	operations[1] = get_hex(&ps2);
+	uart.disp("Enter operation:");
+	uart.disp("\r\n Addition: +");
+	uart.disp("\r\n Subtraction: -");
+	uart.disp("\r\n Multiplication: *");
+	uart.disp("\r\n Divison: /");
+	uart.disp("\r\n AND: &");
+	uart.disp("\r\n OR: |");
+	operations[2] = get_hex(&ps2);
+	uart.disp("Enter 2 digit HEX number:\r\n");
+	operations[3] = get_hex(&ps2);
+	operations[4] = get_hex(&ps2);
+	number = math(operations);
+	display(number, &sseg);
+
+
+
+
+
+	while (1) {
+		ps2_check(&ps2);
+
+
+
+
+	} //while
+} //main
+

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdx:platform sdx:vendor="xilinx.com"
+              sdx:library="sdx"
+              sdx:name="final_project"
+              sdx:version="1.0"
+              sdx:schemaVersion="1.0"
+              xmlns:sdx="http://www.xilinx.com/sdx">
+    <sdx:description>
+final_project
+    </sdx:description>
+    <sdx:systemConfigurations sdx:defaultConfiguration="final_project">
+        <sdx:configuration sdx:name="final_project"
+                           sdx:displayName="final_project"
+                           sdx:defaultProcessorGroup="standalone_domain"
+                           sdx:runtimes="cpp">
+            <sdx:description>final_project</sdx:description>
+            <sdx:bootImages sdx:default="standard">
+                <sdx:image sdx:name="standard"
+                            sdx:bif="final_project/boot/final_project.bif"
+                            sdx:readme="final_project/boot/generic.readme"
+                            />
+            </sdx:bootImages>
+            <sdx:processorGroup sdx:name="standalone_domain"
+                                sdx:displayName="standalone on microblaze_I"
+                                sdx:cpuType="microblaze_I"
+                                sdx:cpuInstance="microblaze_I">
+                <sdx:os sdx:name="standalone"
+                        sdx:displayName="standalone"
+                        sdx:bspLibraryPaths="final_project/standalone_domain/bsplib/lib"
+                        sdx:bspIncludePaths="final_project/standalone_domain/bspinclude/include"
+                        sdx:bspConfig="final_project/standalone_domain/system.mss"
+                />
+            </sdx:processorGroup>
+        </sdx:configuration>
+    </sdx:systemConfigurations>
+</sdx:platform>
